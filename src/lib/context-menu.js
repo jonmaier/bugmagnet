@@ -55,9 +55,9 @@ module.exports = function ContextMenu(standardConfig, browserInterface, menuBuil
 			menuBuilder.separator(rootMenu);
 			if (pasteSupported) {
 				const modeMenu = menuBuilder.subMenu('Operational mode', rootMenu);
-				handlerMenus.injectValue = menuBuilder.choice('Inject value', modeMenu, turnOffPasting, true);
+				handlerMenus.injectValue = menuBuilder.choice('Inject value', modeMenu, turnOffPasting);
 				handlerMenus.paste = menuBuilder.choice('Simulate pasting', modeMenu, turnOnPasting);
-				handlerMenus.copy = menuBuilder.choice('Copy to clipboard', modeMenu, turnOnCopy);
+				handlerMenus.copy = menuBuilder.choice('Copy to clipboard', modeMenu, turnOnCopy, true);
 			}
 			menuBuilder.menuItem('Customise menus', rootMenu, browserInterface.openSettings);
 			menuBuilder.menuItem('Help/Support', rootMenu, () => browserInterface.openUrl('https://bugmagnet.org/contributing.html'));

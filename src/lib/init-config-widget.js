@@ -19,10 +19,10 @@ module.exports = function initConfigWidget(domElement, browserInterface) {
 			parent.appendChild(link);
 		},
 		saveOptions = function () {
-			browserInterface.saveOptions({
+			return browserInterface.saveOptions({
 				additionalMenus: additionalMenus,
 				skipStandard: skipStandard
-			});
+			}).catch(showErrorMsg);
 		},
 		rebuildMenu = function () {
 			list.innerHTML = '';

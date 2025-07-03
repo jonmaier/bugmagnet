@@ -4,12 +4,22 @@ const ContextMenu = require('../lib/context-menu'),
 	ChromeBrowserInterface = require('../lib/chrome-browser-interface'),
 	processMenuObject = require('../lib/process-menu-object'),
 	standardConfig = require('../../template/config.json'),
-	isFirefox = (typeof browser !== 'undefined');
-new ContextMenu(
-	standardConfig,
-	new ChromeBrowserInterface(chrome),
-	new ChromeMenuBuilder(chrome),
-	processMenuObject,
-	!isFirefox
-).init();
+	isFirefox = (typeof browser !== 'undefined'),
+	browserInterface = new ChromeBrowserInterface(chrome);
+
+function initMenus() {
+	'use strict';
+	new ContextMenu(
+		standardConfig,
+		browserInterface,
+		new ChromeMenuBuilder(chrome),
+		processMenuObject,
+		!isFirefox
+	).init();
+}
+
+chrome.runtime.onInstalled.addListener(initMenus);
+chrome.runtime.onStartup.addListener(initMenus);
+
+initMenus();
 

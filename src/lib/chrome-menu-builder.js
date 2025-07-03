@@ -1,26 +1,28 @@
-module.exports = function ChromeMenuBuilder(chrome) {
+export default function ChromeMenuBuilder(chrome) {
 	'use strict';
 	let itemValues = {},
 		itemHandlers = {};
 	const self = this,
 		contexts = ['editable'];
 	self.rootMenu = function (title) {
-		return chrome.contextMenus.create({'title': title, 'contexts': contexts});
+		return chrome.contextMenus.create({ 'id': 'rootMenu', 'title': title, 'contexts': contexts });
 	};
 	self.subMenu = function (title, parentMenu) {
-		return chrome.contextMenus.create({'title': title, 'parentId': parentMenu, 'contexts': contexts});
+		return chrome.contextMenus.create({ 'id': `subMenu-${title}`, 'title': title, 'parentId': parentMenu, 'contexts': contexts });
 	};
 	self.separator = function (parentMenu) {
-		return chrome.contextMenus.create({'type': 'separator', 'parentId': parentMenu, 'contexts': contexts});
+		return chrome.contextMenus.create({ 'id': `separator-${parentMenu}`, 'type': 'separator', 'parentId': parentMenu, 'contexts': contexts });
 	};
 	self.menuItem = function (title, parentMenu, clickHandler, value) {
-		const id = chrome.contextMenus.create({'title': title, 'parentId': parentMenu, 'contexts': contexts});
+		const id = `menuItem-${title}`;
+		chrome.contextMenus.create({ 'id': id, 'title': title, 'parentId': parentMenu, 'contexts': contexts });
 		itemValues[id] = value;
 		itemHandlers[id] = clickHandler;
 		return id;
 	};
-	self.choice  = function (title, parentMenu, clickHandler, value) {
-		const id = chrome.contextMenus.create({type: 'radio', checked: value, title: title, parentId: parentMenu, 'contexts': contexts});
+	self.choice = function (title, parentMenu, clickHandler, value) {
+		const id = `choice-${title}`;
+		chrome.contextMenus.create({ 'id': id, 'type': 'radio', 'checked': value, 'title': title, 'parentId': parentMenu, 'contexts': contexts });
 		itemHandlers[id] = clickHandler;
 		return id;
 	};
@@ -36,6 +38,6 @@ module.exports = function ChromeMenuBuilder(chrome) {
 		}
 	});
 	self.selectChoice = function (menuId) {
-		return chrome.contextMenus.update(menuId, {checked: true});
+		return chrome.contextMenus.update(menuId, { checked: true });
 	};
-};
+}
