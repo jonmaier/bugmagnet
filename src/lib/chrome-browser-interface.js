@@ -52,8 +52,10 @@ module.exports = function ChromeBrowserInterface(chrome) {
 		});
 	};
 	self.executeScript = function (tabId, source) {
-		return new Promise((resolve) => {
-			return chrome.tabs.executeScript(tabId, {file: source}, resolve);
+		// Manifest V3: use chrome.scripting.executeScript
+		return chrome.scripting.executeScript({
+			target: {tabId: tabId},
+			files: [source.replace(/^\//, '')] // remove leading slash if present
 		});
 	};
 	self.sendMessage = function (tabId, message) {
@@ -80,16 +82,25 @@ module.exports = function ChromeBrowserInterface(chrome) {
 		return new Promise((resolve) => chrome.permissions.remove({permissions: permissionsArray}, resolve));
 	};
 	self.copyToClipboard = function (text) {
-		const handler = function (e) {
-			e.clipboardData.setData('text/plain', text);
-			e.preventDefault();
-		};
-		document.addEventListener('copy', handler);
-		document.execCommand('copy');
-		document.removeEventListener('copy', handler);
+		// Manifest V3: send a message to the content script to perform the copy
+		chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+			if (tabs[0]) {
+				chrome.tabs.sendMessage(tabs[0].id, { action: 'copyToClipboard', value: text });
+			}
+		});
 	};
 	self.showMessage = function (text) {
-		chrome.tabs.executeScript(null, {code: `alert("${text}")`});
+		// Manifest V3: use chrome.scripting.executeScript
+		chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+			if (tabs[0]) {
+				chrome.scripting.executeScript({
+					target: {tabId: tabs[0].id},
+					func: function (msg) {
+						alert(msg);
+					},
+					args: [text]
+				});
+			}
+		});
 	};
 };
-
