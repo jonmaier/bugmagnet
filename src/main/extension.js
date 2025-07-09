@@ -7,6 +7,7 @@ const ContextMenu = require('../lib/context-menu'),
 	isFirefox = (typeof browser !== 'undefined');
 
 function createContextMenus() {
+	'use strict';
 	new ContextMenu(
 		standardConfig,
 		new ChromeBrowserInterface(chrome),
@@ -17,6 +18,7 @@ function createContextMenus() {
 }
 
 function resetAndCreateContextMenus() {
+	'use strict';
 	chrome.contextMenus.removeAll(() => {
 		createContextMenus();
 	});
@@ -24,5 +26,6 @@ function resetAndCreateContextMenus() {
 
 // Ensure context menus are created on install/update
 chrome.runtime.onInstalled.addListener(() => {
+	'use strict';
 	resetAndCreateContextMenus();
 });

@@ -1,4 +1,4 @@
-/*global describe, window, it, beforeEach, jasmine, expect*/
+/*global describe, it, beforeEach, jasmine, expect*/
 const ContextMenu = require('../src/lib/context-menu');
 describe('ContextMenu', function () {
 	'use strict';
@@ -157,7 +157,7 @@ describe('ContextMenu', function () {
 		it('executes the script when the message is valid', done => {
 			browserInterface.executeScript.and.callFake((tabId, url) => {
 				expect(tabId).toEqual(1);
-				expect(url).toEqual('/inject-value.js');
+				expect(url).toEqual('/content-actions.js');
 				done();
 				return new Promise(() => false);
 			});
