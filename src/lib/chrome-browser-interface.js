@@ -23,7 +23,7 @@ module.exports = function ChromeBrowserInterface(chrome) {
 		chrome.storage.onChanged.addListener(function (changes, areaName) {
 			if (areaName === 'sync') {
 				listener(changes);
-			};
+			}
 		});
 	};
 	self.getRemoteFile = function (url) {
@@ -59,7 +59,43 @@ module.exports = function ChromeBrowserInterface(chrome) {
 		});
 	};
 	self.sendMessage = function (tabId, message) {
-		return chrome.tabs.sendMessage(tabId, message);
+		return new Promise((resolve) => {
+			try {
+				chrome.tabs.get(tabId, function (tab) {
+					if (!tab || !tab.url ||
+						tab.url.startsWith('chrome://') ||
+						tab.url.startsWith('chrome-extension://') ||
+						tab.url.startsWith('chromewebstore://')) {
+						// Restricted page, do not send message
+						resolve(null);
+						return;
+					}
+					// Try sending the message first
+					chrome.tabs.sendMessage(tabId, message, function (response) {
+						if (chrome.runtime.lastError) {
+							// If failed, try injecting the content script and resend
+							chrome.scripting.executeScript({
+								target: {tabId: tabId},
+								files: ['inject-value.js']
+							}, function () {
+								// Retry sending the message after injection
+								chrome.tabs.sendMessage(tabId, message, function (response2) {
+									if (chrome.runtime.lastError) {
+										resolve(null);
+									} else {
+										resolve(response2);
+									}
+								});
+							});
+						} else {
+							resolve(response);
+						}
+					});
+				});
+			} catch (e) {
+				resolve(null);
+			}
+		});
 	};
 
 	self.requestPermissions = function (permissionsArray) {
@@ -85,7 +121,11 @@ module.exports = function ChromeBrowserInterface(chrome) {
 		// Manifest V3: send a message to the content script to perform the copy
 		chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
 			if (tabs[0]) {
-				chrome.tabs.sendMessage(tabs[0].id, { action: 'copyToClipboard', value: text });
+				chrome.tabs.sendMessage(tabs[0].id, {action: 'copyToClipboard', value: text}, function (response) {
+					if (chrome.runtime.lastError) {
+						console.warn('Content script not found in tab', tabs[0].id, chrome.runtime.lastError.message);
+					}
+				});
 			}
 		});
 	};
