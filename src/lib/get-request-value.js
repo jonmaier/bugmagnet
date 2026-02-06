@@ -6,12 +6,15 @@ const type_flag = '_type',
 		},
 		size: function (request) {
 			'use strict';
-			const size = parseInt(request.size, 10);
-			let value = request.template;
-			while (value.length < size) {
-				value += request.template;
-			}
-			return value.substring(0, request.size);
+		const size = parseInt(request.size, 10);
+		if (!Number.isFinite(size) || size < 0 || !request.template || typeof request.template !== 'string') {
+			return false;
+		}
+		let value = request.template;
+		while (value.length < size) {
+			value += request.template;
+		}
+		return value.substring(0, size);
 		}
 	};
 module.exports = function getRequestValue(request) {
