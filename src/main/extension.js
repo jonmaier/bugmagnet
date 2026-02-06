@@ -8,19 +8,35 @@ const ContextMenu = require('../lib/context-menu'),
 
 function createContextMenus() {
 	'use strict';
-	new ContextMenu(
+	const contextMenu = new ContextMenu(
 		standardConfig,
 		new ChromeBrowserInterface(chrome),
 		new ChromeMenuBuilder(chrome),
 		processMenuObject,
-		!isFirefox
-	).init();
+		true
+	);
+	return contextMenu.init();
 }
 
+let isRebuildingMenus = false;
+let rebuildQueued = false;
 function resetAndCreateContextMenus() {
 	'use strict';
+	if (isRebuildingMenus) {
+		rebuildQueued = true;
+		return;
+	}
+	isRebuildingMenus = true;
 	chrome.contextMenus.removeAll(() => {
-		createContextMenus();
+		Promise.resolve(createContextMenus())
+			.catch(() => {})
+			.finally(() => {
+				isRebuildingMenus = false;
+				if (rebuildQueued) {
+					rebuildQueued = false;
+					resetAndCreateContextMenus();
+				}
+			});
 	});
 }
 
@@ -29,3 +45,12 @@ chrome.runtime.onInstalled.addListener(() => {
 	'use strict';
 	resetAndCreateContextMenus();
 });
+
+// Rebuild menus on browser startup and extension reload
+chrome.runtime.onStartup.addListener(() => {
+	'use strict';
+	resetAndCreateContextMenus();
+});
+
+// Fallback: ensure menus exist after loading
+resetAndCreateContextMenus();

@@ -1,6 +1,6 @@
 # Contributing to Bug Magnet
 
-BugMagnet uses WebPack for packaging, Jasmine for tests (executed via Testem) and ESLint for linting. All the main scripts are in `package.json`
+BugMagnet uses WebPack for packaging, Jasmine for tests (executed via Testem) and ESLint for linting. All the main scripts are in `package.json`.
 
 ## Set up a local development environment
 
@@ -14,13 +14,31 @@ npm i
 npm run pack-extension
 ```
 
-This will create and copy the files in the `pack` dir. You can then zip that up and distribute as an extension, or just load into a browser as an unpacked extension. (check out how to do this in [Chrome](https://developer.chrome.com/extensions/getstarted#unpacked) or [Firefox](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Temporary_Installation_in_Firefox)).
+This will create and copy the files in the `pack` dir. You can then zip that up and distribute as an extension, or just load into a browser as an unpacked extension (check out how to do this in [Chrome](https://developer.chrome.com/extensions/getstarted#unpacked) or [Firefox](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Temporary_Installation_in_Firefox)). Reload the unpacked extension after rebuilding to pick up changes.
+
+### Firefox temporary add-on
+
+Firefox does not currently support `background.service_worker` for temporary add-ons. Use the Firefox-specific build:
+
+```bash
+npm run pack-extension-firefox
+```
+
+Then load `pack/` in `about:debugging` as a temporary add-on.
+
+## Lint
+
+```bash
+npm run lint
+```
 
 ## Run dev tests
 
 ```bash
 npm t
 ```
+
+Testem launches Chrome and Firefox in CI mode. Make sure both browsers are installed and available in your PATH.
 
 ### Run a subset of tests
 
