@@ -4,7 +4,7 @@ module.exports = function ChromeMenuBuilder(chrome) {
 		itemHandlers = {},
 		menuIdCounter = 0;
 	const self = this,
-		contexts = ['editable'];
+		contexts = ['all'];
 
 	function getUniqueId(prefix) {
 		return `${prefix}_${Date.now()}_${menuIdCounter++}`;

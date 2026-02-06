@@ -11,6 +11,7 @@ const path = require('path'),
 //buildEntries('core');
 buildEntries(path.resolve(__dirname, 'src', 'main'));
 module.exports = {
+	mode: 'production',
 	entry: entries,
 	output: {
 		path: path.resolve(__dirname, 'pack'),
